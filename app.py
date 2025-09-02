@@ -5,6 +5,7 @@ import re
 app = Flask(__name__)
 CORS(app)
 
+# 공백(스페이스/탭/개행/NBSP 등) + 0폭 공백(ZWSP/ZWNJ/ZWJ/BOM) 제거 패턴
 WHITESPACE_PATTERN = r"[\s\u200B\u200C\u200D\uFEFF]+"
 
 def count_chars_excluding_spaces(text: str, strip_zero_width: bool = True) -> int:
@@ -38,3 +39,6 @@ def charcount():
         "excluded": "whitespace" + ("+zero_width" if strip_zw else ""),
         "input_length": len(text),
     })
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
