@@ -9,6 +9,7 @@ CORS(app)
 WHITESPACE_PATTERN = r"[\s\u200B\u200C\u200D\uFEFF]+"
 
 def count_chars_excluding_spaces(text: str, strip_zero_width: bool = True) -> int:
+    """공백을 제외한 글자 수 계산"""
     if strip_zero_width:
         cleaned = re.sub(WHITESPACE_PATTERN, "", text, flags=re.UNICODE)
     else:
@@ -17,7 +18,7 @@ def count_chars_excluding_spaces(text: str, strip_zero_width: bool = True) -> in
 
 @app.route("/")
 def root():
-    return "flask-charcount alive", 200
+    return jsonify({"status": "ok", "service": "charcount-api"}), 200
 
 @app.route("/healthz")
 def healthz():
@@ -28,17 +29,18 @@ def charcount():
     if request.method == "GET":
         text = request.args.get("text", "")
         strip_zw = request.args.get("strip_zero_width", "true").lower() != "false"
-    else:
+    else:  # POST
         data = request.get_json(silent=True) or {}
         text = data.get("text", "")
         strip_zw = bool(data.get("strip_zero_width", True))
 
     count = count_chars_excluding_spaces(text, strip_zero_width=strip_zw)
+
     return jsonify({
         "char_count": count,
         "excluded": "whitespace" + ("+zero_width" if strip_zw else ""),
         "input_length": len(text),
-    })
+    }), 200
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
