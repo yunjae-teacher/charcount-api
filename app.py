@@ -5,7 +5,6 @@ import re
 app = Flask(__name__)
 CORS(app)
 
-# 유니코드 공백 + 0폭 공백 제거 패턴
 WHITESPACE_PATTERN = r"[\s\u200B\u200C\u200D\uFEFF]+"
 
 def count_chars_excluding_spaces(text: str, strip_zero_width: bool = True) -> int:
@@ -14,6 +13,14 @@ def count_chars_excluding_spaces(text: str, strip_zero_width: bool = True) -> in
     else:
         cleaned = re.sub(r"\s+", "", text, flags=re.UNICODE)
     return len(cleaned)
+
+@app.route("/")
+def root():
+    return "flask-charcount alive", 200
+
+@app.route("/healthz")
+def healthz():
+    return "ok", 200
 
 @app.route("/charcount", methods=["GET", "POST"])
 def charcount():
@@ -31,10 +38,3 @@ def charcount():
         "excluded": "whitespace" + ("+zero_width" if strip_zw else ""),
         "input_length": len(text),
     })
-
-@app.route("/healthz")
-def healthz():
-    return "ok", 200
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
